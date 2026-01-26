@@ -1,29 +1,27 @@
-package com.example.demo;
+package com.example.demo.product.infrastructure.api;
 
+import com.example.demo.Common.Mediator;
+import com.example.demo.product.aplication.ProductCreateRequest;
+import com.example.demo.product.domain.Product;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@RequiredArgsConstructor
 public class ProductController {
 
-    public List<Product> products;
 
-    public ProductController() {
-        this.products = new ArrayList<>();
-        products.add(Product.builder().id(2L).name("Product 2").description("Product description").price(200.0).image("image").build());
-        products.add(Product.builder().id(3L).name("Product 3").description("Product description").price(200.0).image("image").build());
-    }
+    private Mediator mediator;
+
 
     //CRUD
-
-
     // Get all
     @GetMapping("")
     public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false) String pageSize) {
@@ -49,7 +47,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Void> saveProduct(@RequestBody Product product) {
 
-        products.add(product);
+        mediator.dispatch(new ProductCreateRequest(product.getName(), product.getDescription(), product.getPrice(), product.getImage()));
 
         return ResponseEntity.created(URI.create("/api/v1/products/" + product.getId())).build();
     }
